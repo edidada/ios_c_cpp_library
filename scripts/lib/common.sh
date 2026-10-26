@@ -34,7 +34,7 @@ have() {
 
 # 去掉 xmake 等工具输出中的 ANSI 颜色控制符，避免污染 CI summary。
 strip_ansi() {
-    sed -E 's/\x1b\[[0-9;]*[[:alpha:]]//g'
+    sed -E $'s/\x1b\\[[0-9;]*[[:alpha:]]//g'
 }
 
 require_file() {
@@ -178,9 +178,34 @@ conan_home() {
     fi
 }
 
+# 比较两个 iOS 版本，$1 >= $2 时返回 0。
+version_ge() {
+    local a="$1" b="$2"
+    local IFS='.'
+    local -a a_parts b_parts
+    read -r -a a_parts <<<"$a"
+    read -r -a b_parts <<<"$b"
+    local i av bv
+    for i in 0 1 2 3; do
+        av="${a_parts[$i]:-0}"
+        bv="${b_parts[$i]:-0}"
+        if [ "$((10#$av))" -gt "$((10#$bv))" ]; then
+            return 0
+        fi
+        if [ "$((10#$av))" -lt "$((10#$bv))" ]; then
+            return 1
+        fi
+    done
+    return 0
+}
+
 # 取两个 iOS 版本中较大的一个，例如 max_ios_version 13.0 14.0 -> 14.0。
 max_ios_version() {
-    printf '%s\n%s\n' "$1" "$2" | sort -V | tail -n 1
+    if version_ge "$1" "$2"; then
+        printf '%s\n' "$1"
+    else
+        printf '%s\n' "$2"
+    fi
 }
 
 split_csv() {

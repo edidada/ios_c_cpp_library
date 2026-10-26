@@ -197,7 +197,7 @@ generate_conan_profiles() {
         profile="$(conan_profile_name "$target_slice")"
 
         if [ "$force" -eq 0 ] && [ -f "$(conan_home)/profiles/$profile" ]; then
-            log "Conan profile 已存在: $profile（--force 可覆盖）"
+            log "Conan profile 已存在: ${profile}（--force 可覆盖）"
             continue
         fi
 
@@ -234,7 +234,7 @@ generate_conan_profiles() {
         [ "$sdk_ok" -eq 1 ] \
             || die "无法为切片 $target_slice 生成 Conan profile（Apple clang ${clang_major}, SDK ${sdk_version}）"
 
-        log "生成 Conan profile: $profile（apple-clang ${version}, ${sdk} ${sdk_version}, iOS ${ios_version}）"
+        log "生成 Conan profile: ${profile}（apple-clang ${version}, ${sdk} ${sdk_version}, iOS ${ios_version}）"
     done
 }
 

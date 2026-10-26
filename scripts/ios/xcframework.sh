@@ -145,7 +145,7 @@ while IFS=$'\x1f' read -r name title category is_experimental min_ios xmake_pkg 
             if make_one "$name" "$backend" "$device_lib" "$rel" "$out_dir"; then
                 merged=$((merged + 1))
             else
-                warn "跳过 $name/$backend/$rel（缺少完整模拟器切片）"
+                warn "跳过 ${name}/${backend}/${rel}（缺少完整模拟器切片）"
                 skipped=$((skipped + 1))
             fi
         done < <(find "$device_root" -type f -name '*.a' | sort)
