@@ -1,0 +1,202 @@
+name: iOS C/C++ Libraries
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ios-libraries.yml"
+      - "libraries/**"
+      - "scripts/**"
+      - "README.md"
+  pull_request:
+    paths:
+      - ".github/workflows/ios-libraries.yml"
+      - "libraries/**"
+      - "scripts/**"
+      - "README.md"
+  workflow_dispatch:
+    inputs:
+      libraries:
+        description: "要构建的库：all / core / 逗号分隔，例如 zlib,openssl"
+        required: false
+        default: "core"
+        type: string
+      slices:
+        description: "切片，逗号分隔：iphoneos-arm64,iphonesimulator-arm64,iphonesimulator-x86_64"
+        required: false
+        default: "iphoneos-arm64,iphonesimulator-arm64,iphonesimulator-x86_64"
+        type: string
+      backends:
+        description: "构建后端"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - xmake
+          - conan
+      ios_version:
+        description: "iOS deployment target"
+        required: false
+        default: "13.0"
+        type: string
+      runner:
+        description: "macOS runner（GitHub Actions 当前支持 GA 的版本）"
+        required: false
+        default: "macos-26"
+        type: choice
+        options:
+          - macos-26
+          - macos-15
+      include_experimental:
+        description: "是否构建 experimental 库"
+        required: false
+        default: true
+        type: boolean
+      build_xcframework:
+        description: "构建完成后合并 xcframework"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-libraries-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # push / PR 上默认只跑 core 冒烟集；手动触发可通过 inputs 选择 all。
+  LIBRARIES: ${{ github.event.inputs.libraries || 'core' }}
+  SLICES: ${{ github.event.inputs.slices || 'iphoneos-arm64,iphonesimulator-arm64,iphonesimulator-x86_64' }}
+  BACKENDS: ${{ github.event.inputs.backends || 'all' }}
+  IOS_VERSION: ${{ github.event.inputs.ios_version || '13.0' }}
+  EXPERIMENTAL: ${{ github.event.inputs.include_experimental || 'true' }}
+
+jobs:
+  discover:
+    name: 查看支持的 iOS 库
+    runs-on: ${{ github.event.inputs.runner || 'macos-26' }}
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      count: ${{ steps.matrix.outputs.count }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 展开构建矩阵
+        id: matrix
+        run: |
+          bash scripts/list-libraries.sh --validate
+          mode="all"
+          if [ "$EXPERIMENTAL" = "false" ]; then
+            mode="stable"
+          fi
+          matrix="$(bash scripts/list-libraries.sh --matrix \
+            --libs "$LIBRARIES" --backends "$BACKENDS" --experimental "$mode")"
+          count="$(python3 -c 'import json,sys; print(len(json.loads(sys.argv[1])))' "$matrix")"
+          if [ "$count" -eq 0 ]; then
+            echo "::error::没有匹配的库：libraries=$LIBRARIES, backends=$BACKENDS, experimental=$mode"
+            exit 1
+          fi
+          {
+            echo "matrix=$matrix"
+            echo "count=$count"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: 输出支持的库列表
+        run: |
+          mode="all"
+          if [ "$EXPERIMENTAL" = "false" ]; then
+            mode="stable"
+          fi
+          {
+            echo "## 支持的 iOS C/C++ 库"
+            echo
+            echo "请求的库：\`$LIBRARIES\`，后端：\`$BACKENDS\`，切片：\`$SLICES\`，iOS：\`$IOS_VERSION\`"
+            echo
+            bash scripts/list-libraries.sh --markdown \
+              --libs "$LIBRARIES" --backends "$BACKENDS" --experimental "$mode"
+            echo
+            echo "共 **${{ steps.matrix.outputs.count }}** 个库进入构建矩阵。"
+          } >>"$GITHUB_STEP_SUMMARY"
+
+  build:
+    name: ${{ matrix.library.name }} (${{ matrix.library.backends }})
+    needs: discover
+    if: needs.discover.outputs.count != '0'
+    runs-on: ${{ github.event.inputs.runner || 'macos-26' }}
+    timeout-minutes: 240
+    continue-on-error: ${{ matrix.library.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        library: ${{ fromJSON(needs.discover.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Xcode 版本
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphonesimulator --show-sdk-version
+
+      - name: Cache xmake
+        if: contains(matrix.library.backends, 'xmake')
+        uses: actions/cache@v4
+        with:
+          path: ~/.xmake
+          key: xmake-${{ runner.os }}-${{ runner.arch }}-${{ matrix.library.name }}-${{ hashFiles('libraries/manifest.json', 'scripts/**') }}
+          restore-keys: |
+            xmake-${{ runner.os }}-${{ runner.arch }}-${{ matrix.library.name }}-
+            xmake-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: 安装 xmake 与 Conan 2
+        run: |
+          bash scripts/setup.sh \
+            --backends "${{ matrix.library.backends }}" \
+            --slices "$SLICES" \
+            --ios-version "$IOS_VERSION"
+
+      - name: 构建 ${{ matrix.library.name }}
+        run: |
+          mode="all"
+          if [ "$EXPERIMENTAL" = "false" ]; then
+            mode="stable"
+          fi
+          bash scripts/build.sh \
+            --libs "${{ matrix.library.name }}" \
+            --backends "${{ matrix.library.backends }}" \
+            --slices "$SLICES" \
+            --ios-version "$IOS_VERSION" \
+            --experimental "$mode"
+
+      - name: 生成 xcframework
+        if: github.event.inputs.build_xcframework != 'false'
+        run: |
+          bash scripts/ios/xcframework.sh \
+            --libs "${{ matrix.library.name }}" \
+            --backends "${{ matrix.library.backends }}" \
+            --out dist
+
+      - name: 上传产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ matrix.library.name }}-${{ matrix.library.backends }}
+          path: dist/${{ matrix.library.name }}
+          if-no-files-found: ignore
+          retention-days: 14

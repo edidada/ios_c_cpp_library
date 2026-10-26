@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/edidada/ios_c_cpp_library/libraries/manifest.schema.json",
+  "title": "iOS C/C++ library manifest",
+  "description": "声明需要为 iOS 编译的 C/C++ 库，以及 xmake / Conan 2 中对应的包信息。",
+  "type": "object",
+  "required": ["schemaVersion", "libraries"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "presets": {
+      "type": "object",
+      "description": "命名库集合，例如 core；可在 --libs 中直接使用集合名",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "iosMinVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)*$",
+          "description": "默认 iOS deployment target，例如 13.0"
+        },
+        "slices": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "iphoneos-arm64",
+              "iphonesimulator-arm64",
+              "iphonesimulator-x86_64"
+            ]
+          },
+          "description": "目标切片：设备 arm64、模拟器 arm64、模拟器 x86_64"
+        },
+        "buildType": {
+          "enum": ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]
+        }
+      }
+    },
+    "libraries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/library" }
+    }
+  },
+  "$defs": {
+    "library": {
+      "type": "object",
+      "required": ["name", "category", "xmake", "conan"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "description": "唯一标识，同时用于目录名、CI 参数"
+        },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "experimental": {
+          "type": "boolean",
+          "default": false,
+          "description": "true 时 CI 允许该库失败（continue-on-error）"
+        },
+        "minIosVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)*$",
+          "description": "该库要求的最低 iOS 版本，未设置时使用 defaults.iosMinVersion"
+        },
+        "headers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "编译探针时 include 的头文件，用于校验包的头文件与编译参数"
+        },
+        "defines": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "编译探针时使用的宏定义"
+        },
+        "xmake": { "$ref": "#/$defs/xmake" },
+        "conan": { "$ref": "#/$defs/conan" }
+      }
+    },
+    "xmake": {
+      "type": "object",
+      "required": ["package"],
+      "additionalProperties": false,
+      "properties": {
+        "package": {
+          "type": "string",
+          "description": "xmake-repo 中的包名，例如 libopus"
+        },
+        "version": {
+          "type": "string",
+          "description": "可选，不填写时使用 xmake-repo 最新版本"
+        },
+        "configs": {
+          "type": "object",
+          "description": "传给 add_requires 的 configs，例如 { \"shared\": false }",
+          "additionalProperties": {
+            "type": ["string", "number", "boolean"]
+          }
+        }
+      }
+    },
+    "conan": {
+      "type": "object",
+      "required": ["reference"],
+      "additionalProperties": false,
+      "properties": {
+        "reference": {
+          "type": "string",
+          "pattern": "^[^/\\s]+/[^\\s]+$",
+          "description": "Conan 2 引用，例如 openssl/4.0.3"
+        },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Conan 选项，例如 [\"libcurl:with_ssl=openssl\"]；不带包名前缀时自动补当前包名"
+        }
+      }
+    }
+  }
+}

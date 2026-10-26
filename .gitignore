@@ -1,0 +1,17 @@
+# Build outputs
+/build/
+/dist/
+
+# Toolchain caches (when configured to live inside the repo)
+/.xmake/
+/.conan2/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Editor / OS
+.DS_Store
+._*
+__pycache__/
+Thumbs.db
+*.swp

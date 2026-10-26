@@ -1,0 +1,544 @@
+{
+  "$schema": "./manifest.schema.json",
+  "schemaVersion": 1,
+  "defaults": {
+    "iosMinVersion": "13.0",
+    "slices": [
+      "iphoneos-arm64",
+      "iphonesimulator-arm64",
+      "iphonesimulator-x86_64"
+    ],
+    "buildType": "Release"
+  },
+  "presets": {
+    "core": [
+      "libevent",
+      "zlib",
+      "openssl",
+      "sqlite3",
+      "libcurl",
+      "libuv",
+      "libssh2",
+      "c-ares"
+    ]
+  },
+  "libraries": [
+    {
+      "name": "zlib",
+      "title": "zlib",
+      "category": "compression",
+      "description": "Deflate/zlib 压缩库",
+      "headers": ["zlib.h"],
+      "xmake": { "package": "zlib" },
+      "conan": { "reference": "zlib/1.3.2" }
+    },
+    {
+      "name": "zstd",
+      "title": "Zstandard",
+      "category": "compression",
+      "description": "Facebook 高性能实时压缩算法",
+      "headers": ["zstd.h"],
+      "xmake": { "package": "zstd" },
+      "conan": { "reference": "zstd/1.5.7" }
+    },
+    {
+      "name": "lz4",
+      "title": "LZ4",
+      "category": "compression",
+      "description": "极快的无损压缩算法",
+      "headers": ["lz4.h"],
+      "xmake": { "package": "lz4" },
+      "conan": { "reference": "lz4/1.10.0" }
+    },
+    {
+      "name": "bzip2",
+      "title": "bzip2",
+      "category": "compression",
+      "description": "Burrows-Wheeler 块排序压缩库",
+      "headers": ["bzlib.h"],
+      "xmake": { "package": "bzip2" },
+      "conan": { "reference": "bzip2/1.0.8" }
+    },
+    {
+      "name": "snappy",
+      "title": "Snappy",
+      "category": "compression",
+      "description": "Google 快速压缩/解压库",
+      "headers": ["snappy.h"],
+      "xmake": { "package": "snappy" },
+      "conan": { "reference": "snappy/1.2.1" }
+    },
+    {
+      "name": "libpng",
+      "title": "libpng",
+      "category": "image",
+      "description": "PNG 图像编解码库",
+      "headers": ["png.h"],
+      "xmake": { "package": "libpng" },
+      "conan": { "reference": "libpng/1.6.59" }
+    },
+    {
+      "name": "libjpeg-turbo",
+      "title": "libjpeg-turbo",
+      "category": "image",
+      "description": "SIMD 加速的 JPEG 编解码库",
+      "headers": ["jpeglib.h"],
+      "xmake": { "package": "libjpeg-turbo" },
+      "conan": { "reference": "libjpeg-turbo/3.2.0" }
+    },
+    {
+      "name": "libwebp",
+      "title": "libwebp",
+      "category": "image",
+      "description": "WebP 图像编解码库",
+      "headers": ["webp/decode.h"],
+      "xmake": { "package": "libwebp" },
+      "conan": { "reference": "libwebp/1.6.0" }
+    },
+    {
+      "name": "libtiff",
+      "title": "libtiff",
+      "category": "image",
+      "description": "TIFF 图像读写库",
+      "headers": ["tiffio.h"],
+      "xmake": { "package": "libtiff" },
+      "conan": { "reference": "libtiff/4.7.2" }
+    },
+    {
+      "name": "libjpeg",
+      "title": "libjpeg",
+      "category": "image",
+      "description": "经典 JPEG 编解码库",
+      "headers": ["jpeglib.h"],
+      "xmake": { "package": "libjpeg" },
+      "conan": { "reference": "libjpeg/9f" }
+    },
+    {
+      "name": "libyuv",
+      "title": "libyuv",
+      "category": "image",
+      "description": "YUV 图像缩放与色彩空间转换库",
+      "headers": ["libyuv.h"],
+      "xmake": { "package": "libyuv" },
+      "conan": { "reference": "libyuv/1892" }
+    },
+    {
+      "name": "opencv",
+      "title": "OpenCV",
+      "category": "image",
+      "description": "计算机视觉与图像处理库",
+      "experimental": true,
+      "headers": ["opencv2/core.hpp"],
+      "xmake": {
+        "package": "opencv",
+        "configs": {
+          "shared": false,
+          "with_ffmpeg": false
+        }
+      },
+      "conan": { "reference": "opencv/4.14.0" }
+    },
+    {
+      "name": "freetype",
+      "title": "FreeType",
+      "category": "font",
+      "description": "字体解析与渲染库",
+      "headers": ["ft2build.h"],
+      "xmake": { "package": "freetype" },
+      "conan": { "reference": "freetype/2.15.0" }
+    },
+    {
+      "name": "harfbuzz",
+      "title": "HarfBuzz",
+      "category": "font",
+      "description": "OpenType 文本整形引擎",
+      "headers": ["hb.h"],
+      "xmake": { "package": "harfbuzz" },
+      "conan": { "reference": "harfbuzz/12.3.0" }
+    },
+    {
+      "name": "openssl",
+      "title": "OpenSSL",
+      "category": "crypto",
+      "description": "TLS/SSL 与密码学工具库",
+      "headers": ["openssl/ssl.h"],
+      "xmake": { "package": "openssl" },
+      "conan": {
+        "reference": "openssl/4.0.3",
+        "options": ["openssl:shared=False"]
+      }
+    },
+    {
+      "name": "mbedtls",
+      "title": "Mbed TLS",
+      "category": "crypto",
+      "description": "轻量级 TLS/密码学库",
+      "headers": ["mbedtls/ssl.h"],
+      "xmake": { "package": "mbedtls" },
+      "conan": { "reference": "mbedtls/3.6.7" }
+    },
+    {
+      "name": "libsodium",
+      "title": "libsodium",
+      "category": "crypto",
+      "description": "现代易用的密码学库",
+      "headers": ["sodium.h"],
+      "xmake": { "package": "libsodium" },
+      "conan": { "reference": "libsodium/cci.20220430" }
+    },
+    {
+      "name": "libcurl",
+      "title": "libcurl",
+      "category": "network",
+      "description": "多协议网络传输库",
+      "headers": ["curl/curl.h"],
+      "xmake": { "package": "libcurl" },
+      "conan": { "reference": "libcurl/8.23.0" }
+    },
+    {
+      "name": "c-ares",
+      "title": "c-ares",
+      "category": "network",
+      "description": "异步 DNS 解析库",
+      "headers": ["ares.h"],
+      "xmake": { "package": "c-ares" },
+      "conan": { "reference": "c-ares/1.34.9" }
+    },
+    {
+      "name": "libssh2",
+      "title": "libssh2",
+      "category": "network",
+      "description": "SSH2 协议客户端库",
+      "headers": ["libssh2.h"],
+      "xmake": { "package": "libssh2" },
+      "conan": { "reference": "libssh2/1.11.1" }
+    },
+    {
+      "name": "libevent",
+      "title": "libevent",
+      "category": "network",
+      "description": "事件驱动网络编程库",
+      "headers": ["event2/event.h"],
+      "xmake": { "package": "libevent" },
+      "conan": { "reference": "libevent/2.1.12" }
+    },
+    {
+      "name": "asio",
+      "title": "Asio",
+      "category": "network",
+      "description": "C++ 异步网络与 I/O 库（header-only）",
+      "headers": ["asio.hpp"],
+      "xmake": { "package": "asio" },
+      "conan": { "reference": "asio/1.38.2" }
+    },
+    {
+      "name": "sqlite3",
+      "title": "SQLite",
+      "category": "database",
+      "description": "嵌入式关系型数据库",
+      "headers": ["sqlite3.h"],
+      "xmake": { "package": "sqlite3" },
+      "conan": { "reference": "sqlite3/3.54.0" }
+    },
+    {
+      "name": "nlohmann_json",
+      "title": "nlohmann/json",
+      "category": "serialization",
+      "description": "现代 C++ JSON 库（header-only）",
+      "headers": ["nlohmann/json.hpp"],
+      "xmake": { "package": "nlohmann_json" },
+      "conan": { "reference": "nlohmann_json/3.12.0" }
+    },
+    {
+      "name": "rapidjson",
+      "title": "RapidJSON",
+      "category": "serialization",
+      "description": "高性能 C++ JSON 解析库",
+      "headers": ["rapidjson/document.h"],
+      "xmake": { "package": "rapidjson" },
+      "conan": { "reference": "rapidjson/cci.20250205" }
+    },
+    {
+      "name": "protobuf",
+      "title": "Protocol Buffers",
+      "category": "serialization",
+      "description": "Google 结构化数据序列化库",
+      "experimental": true,
+      "headers": ["google/protobuf/message.h"],
+      "xmake": { "package": "protobuf-cpp" },
+      "conan": { "reference": "protobuf/7.36.2" }
+    },
+    {
+      "name": "flatbuffers",
+      "title": "FlatBuffers",
+      "category": "serialization",
+      "description": "零拷贝序列化库",
+      "headers": ["flatbuffers/flatbuffers.h"],
+      "xmake": { "package": "flatbuffers" },
+      "conan": { "reference": "flatbuffers/25.12.19" }
+    },
+    {
+      "name": "boost",
+      "title": "Boost",
+      "category": "utility",
+      "description": "大型通用 C++ 工具库集合",
+      "experimental": true,
+      "headers": ["boost/version.hpp"],
+      "xmake": { "package": "boost" },
+      "conan": { "reference": "boost/1.91.0" }
+    },
+    {
+      "name": "abseil",
+      "title": "Abseil",
+      "category": "utility",
+      "description": "Google C++ 基础库集合",
+      "experimental": true,
+      "headers": ["absl/strings/str_cat.h"],
+      "xmake": { "package": "abseil" },
+      "conan": { "reference": "abseil/20260526.0" }
+    },
+    {
+      "name": "fmt",
+      "title": "{fmt}",
+      "category": "utility",
+      "description": "现代 C++ 格式化库",
+      "headers": ["fmt/format.h"],
+      "xmake": { "package": "fmt" },
+      "conan": { "reference": "fmt/12.2.0" }
+    },
+    {
+      "name": "spdlog",
+      "title": "spdlog",
+      "category": "utility",
+      "description": "高性能 C++ 日志库",
+      "headers": ["spdlog/spdlog.h"],
+      "xmake": { "package": "spdlog" },
+      "conan": { "reference": "spdlog/1.17.0" }
+    },
+    {
+      "name": "libuv",
+      "title": "libuv",
+      "category": "async",
+      "description": "跨平台异步 I/O 库",
+      "experimental": true,
+      "headers": ["uv.h"],
+      "xmake": { "package": "libuv" },
+      "conan": { "reference": "libuv/1.53.0" }
+    },
+    {
+      "name": "glm",
+      "title": "GLM",
+      "category": "math",
+      "description": "OpenGL 数学库（header-only）",
+      "headers": ["glm/glm.hpp"],
+      "xmake": { "package": "glm" },
+      "conan": { "reference": "glm/cci.20230113" }
+    },
+    {
+      "name": "eigen",
+      "title": "Eigen",
+      "category": "math",
+      "description": "C++ 线性代数模板库",
+      "headers": ["Eigen/Core"],
+      "xmake": { "package": "eigen" },
+      "conan": { "reference": "eigen/5.0.1" }
+    },
+    {
+      "name": "gtest",
+      "title": "GoogleTest",
+      "category": "test",
+      "description": "Google C++ 单元测试框架",
+      "headers": ["gtest/gtest.h"],
+      "xmake": { "package": "gtest" },
+      "conan": { "reference": "gtest/cci.20210126" }
+    },
+    {
+      "name": "catch2",
+      "title": "Catch2",
+      "category": "test",
+      "description": "现代 C++ 单元测试框架",
+      "headers": ["catch2/catch_test_macros.hpp"],
+      "xmake": { "package": "catch2" },
+      "conan": { "reference": "catch2/3.16.0" }
+    },
+    {
+      "name": "benchmark",
+      "title": "Google Benchmark",
+      "category": "test",
+      "description": "C++ 微基准测试框架",
+      "experimental": true,
+      "headers": ["benchmark/benchmark.h"],
+      "xmake": { "package": "benchmark" },
+      "conan": { "reference": "benchmark/1.9.5" }
+    },
+    {
+      "name": "re2",
+      "title": "RE2",
+      "category": "text",
+      "description": "Google 正则表达式库",
+      "headers": ["re2/re2.h"],
+      "xmake": { "package": "re2" },
+      "conan": { "reference": "re2/20251105" }
+    },
+    {
+      "name": "icu",
+      "title": "ICU",
+      "category": "text",
+      "description": "Unicode 国际化组件",
+      "experimental": true,
+      "minIosVersion": "14.0",
+      "headers": ["unicode/utypes.h"],
+      "xmake": { "package": "icu4c" },
+      "conan": { "reference": "icu/78.2" }
+    },
+    {
+      "name": "libxml2",
+      "title": "libxml2",
+      "category": "xml",
+      "description": "XML 解析与操作库",
+      "headers": ["libxml/parser.h"],
+      "xmake": { "package": "libxml2" },
+      "conan": { "reference": "libxml2/2.15.4" }
+    },
+    {
+      "name": "expat",
+      "title": "Expat",
+      "category": "xml",
+      "description": "流式 XML 解析库",
+      "headers": ["expat.h"],
+      "xmake": { "package": "expat" },
+      "conan": { "reference": "expat/2.9.0" }
+    },
+    {
+      "name": "pcre2",
+      "title": "PCRE2",
+      "category": "text",
+      "description": "Perl 兼容正则表达式库",
+      "headers": ["pcre2.h"],
+      "defines": ["PCRE2_CODE_UNIT_WIDTH=8"],
+      "xmake": { "package": "pcre2" },
+      "conan": { "reference": "pcre2/10.49" }
+    },
+    {
+      "name": "libarchive",
+      "title": "libarchive",
+      "category": "archive",
+      "description": "多格式归档与压缩读写库",
+      "headers": ["archive.h"],
+      "xmake": { "package": "libarchive" },
+      "conan": { "reference": "libarchive/3.8.7" }
+    },
+    {
+      "name": "libiconv",
+      "title": "libiconv",
+      "category": "text",
+      "description": "字符编码转换库",
+      "experimental": true,
+      "headers": ["iconv.h"],
+      "xmake": { "package": "libiconv" },
+      "conan": { "reference": "libiconv/1.19" }
+    },
+    {
+      "name": "libogg",
+      "title": "libogg",
+      "category": "audio",
+      "description": "Ogg 容器格式库",
+      "headers": ["ogg/ogg.h"],
+      "xmake": { "package": "libogg" },
+      "conan": { "reference": "ogg/1.3.5" }
+    },
+    {
+      "name": "libvorbis",
+      "title": "libvorbis",
+      "category": "audio",
+      "description": "Vorbis 音频编解码库",
+      "headers": ["vorbis/vorbisenc.h"],
+      "xmake": { "package": "libvorbis" },
+      "conan": { "reference": "vorbis/1.3.7" }
+    },
+    {
+      "name": "libopus",
+      "title": "Opus",
+      "category": "audio",
+      "description": "低延迟音频编解码库",
+      "headers": ["opus.h"],
+      "xmake": { "package": "libopus" },
+      "conan": { "reference": "opus/1.6.1" }
+    },
+    {
+      "name": "libflac",
+      "title": "FLAC",
+      "category": "audio",
+      "description": "无损音频编解码库",
+      "headers": ["FLAC/stream_decoder.h"],
+      "xmake": { "package": "libflac" },
+      "conan": { "reference": "flac/1.5.0" }
+    },
+    {
+      "name": "openal-soft",
+      "title": "OpenAL Soft",
+      "category": "audio",
+      "description": "跨平台 3D 音频 API 实现",
+      "experimental": true,
+      "headers": ["AL/al.h"],
+      "xmake": { "package": "openal-soft" },
+      "conan": { "reference": "openal-soft/1.24.3" }
+    },
+    {
+      "name": "libsdl3",
+      "title": "SDL3",
+      "category": "multimedia",
+      "description": "跨平台多媒体与输入抽象层",
+      "experimental": true,
+      "headers": ["SDL3/SDL.h"],
+      "xmake": { "package": "libsdl3" },
+      "conan": { "reference": "sdl/3.4.16" }
+    },
+    {
+      "name": "vulkan-headers",
+      "title": "Vulkan Headers",
+      "category": "graphics",
+      "description": "Vulkan API 头文件（配合 MoltenVK 使用）",
+      "headers": ["vulkan/vulkan.h"],
+      "xmake": { "package": "vulkan-headers" },
+      "conan": { "reference": "vulkan-headers/1.4.357.0" }
+    },
+    {
+      "name": "openh264",
+      "title": "OpenH264",
+      "category": "multimedia",
+      "description": "Cisco H.264 编解码库",
+      "experimental": true,
+      "headers": ["wels/codec_api.h"],
+      "xmake": { "package": "openh264" },
+      "conan": { "reference": "openh264/2.6.0" }
+    },
+    {
+      "name": "libvpx",
+      "title": "libvpx",
+      "category": "multimedia",
+      "description": "VP8/VP9 视频编解码库",
+      "experimental": true,
+      "headers": ["vpx/vpx_decoder.h"],
+      "xmake": { "package": "libvpx" },
+      "conan": { "reference": "libvpx/1.16.0" }
+    },
+    {
+      "name": "ffmpeg",
+      "title": "FFmpeg",
+      "category": "multimedia",
+      "description": "音视频编解码与处理框架",
+      "experimental": true,
+      "headers": ["libavcodec/avcodec.h"],
+      "xmake": {
+        "package": "ffmpeg",
+        "configs": {
+          "ffmpeg": false,
+          "ffprobe": false,
+          "ffplay": false
+        }
+      },
+      "conan": { "reference": "ffmpeg/9.0.1" }
+    }
+  ]
+}
