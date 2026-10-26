@@ -129,8 +129,8 @@ while IFS=$'\x1f' read -r name title category is_experimental min_ios xmake_pkg 
     [ -n "$name" ] || continue
 
     for backend in $(split_csv "$backends"); do
-        case " $lib_backends " in
-            *" $backend "*) ;;
+        case ",$lib_backends," in
+            *",$backend,"*) ;;
             *) continue ;;
         esac
 
