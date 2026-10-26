@@ -176,6 +176,7 @@ write_conan_profile() {
         echo "compiler=apple-clang"
         echo "compiler.version=${compiler_version}"
         echo "compiler.libcxx=libc++"
+        echo "compiler.cppstd=17"
         echo "build_type=${build_type}"
         echo "os.version=${ios_version}"
         echo "os.sdk=${sdk}"
@@ -272,6 +273,7 @@ if [ "$skip_profiles" -eq 0 ]; then
     if [ "$want_conan" -eq 1 ]; then
         ensure_conan_remote
         ensure_conan_default_profile
+        export_local_recipes
         generate_conan_profiles
     fi
 fi

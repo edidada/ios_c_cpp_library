@@ -192,11 +192,23 @@ jobs:
             --backends "${{ matrix.library.backends }}" \
             --out dist
 
+      - name: 打包产物
+        if: always()
+        run: |
+          # 直接上传数万个文件时 upload-artifact 的 Node 进程可能 OOM（boost 等大库），
+          # 先打成单个 tar.gz 再上传。
+          lib="${{ matrix.library.name }}"
+          mkdir -p dist/_artifacts
+          if [ -d "dist/$lib" ]; then
+            tar -czf "dist/_artifacts/ios-$lib-${{ matrix.library.backends }}.tar.gz" -C dist "$lib"
+          fi
+
       - name: 上传产物
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ios-${{ matrix.library.name }}-${{ matrix.library.backends }}
-          path: dist/${{ matrix.library.name }}
+          path: dist/_artifacts/*.tar.gz
           if-no-files-found: ignore
           retention-days: 14
+          compression-level: 0

@@ -54,8 +54,12 @@ Opus、FLAC、SDL3、protobuf）已分别配置。标记为 `"experimental": tru
 
 - `openssl` 的 xmake 侧使用 `openssl3` 包。xmake-repo 里的 `openssl` 包停留在 1.1.1（已 EOL），
   默认解析会得到 1.1.1-w，因此这里显式改用 `openssl3 3.6.5`。
-- `libssh2` 只提供 Conan 2 后端。xmake-repo 的 `libssh2` 包不支持 `iphoneos` 平台，
-  在 iOS 上会直接报 unsupported package。
+- `libssh2`、`opencv`、`libvpx`、`libjpeg-turbo`、`libarchive` 只提供 Conan 2 后端：
+  xmake-repo 中这些包不支持 `iphoneos` 平台，在 iOS 上会直接报 unsupported package。
+- `recipes/libvpx/` 维护了一份补丁版 Conan recipe。Conan 2.29+ 在 Apple 平台上会把
+  `-arch`、`-mios-simulator-version-min` 写入 `ASFLAGS`，而 libvpx 会把 `ASFLAGS` 原样传给
+  yasm，导致 x86_64 模拟器切片报 `yasm: FATAL: unrecognized architecture`。补丁在 Apple
+  x86_64 下清空 `ASFLAGS`，`scripts/setup.sh` 与 `scripts/build.sh` 会自动导出该 recipe。
 
 与 Android 清单相比，本清单移除了 Android 专属的 `oboe`，并为 iOS 增加了 `minIosVersion`、
 `slices` 与 xcframework 合并流程。
@@ -170,8 +174,9 @@ bash scripts/ios/xcframework.sh --libs all --backends conan
 `.github/workflows/ios-libraries.yml` 只调用 `scripts/`，不硬编码库列表，也**没有定时任务**：
 
 1. **查看支持的 iOS 库列表**：校验清单，输出库列表到 job summary，并展开构建矩阵。
-2. **构建**：每个库一个 job，在 macOS runner 上按所选后端和切片编译，上传
-   `dist/<库名>/` 作为 artifact，并把每个库的构建结果写入 job summary。
+2. **构建**：每个库一个 job，在 macOS runner 上按所选后端和切片编译，把
+   `dist/<库名>/` 打包成单个 `ios-<库名>-<后端>.tar.gz` 上传（避免大库数万文件导致
+   upload-artifact OOM），并把每个库的构建结果写入 job summary。
 
 触发方式：
 

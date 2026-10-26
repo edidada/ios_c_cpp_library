@@ -237,6 +237,17 @@ add_toolchain_paths() {
     hash -r 2>/dev/null || true
 }
 
+# 导出仓库内维护的 Conan recipe（用于覆盖 ConanCenter 中有已知 iOS 构建问题的版本）。
+export_local_recipes() {
+    have conan || return 0
+    local recipe
+    for recipe in "$REPO_ROOT"/recipes/*; do
+        [ -f "$recipe/conanfile.py" ] || continue
+        log "导出本地 Conan recipe: $(basename "$recipe")"
+        conan export "$recipe" >/dev/null || die "导出本地 recipe 失败: $recipe"
+    done
+}
+
 # 在 GitHub Actions 中把 Markdown 追加到当前 job 的 summary。
 append_github_summary() {
     local file="$1"

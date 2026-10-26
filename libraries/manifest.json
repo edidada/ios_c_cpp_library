@@ -81,9 +81,8 @@
       "name": "libjpeg-turbo",
       "title": "libjpeg-turbo",
       "category": "image",
-      "description": "SIMD 加速的 JPEG 编解码库",
+      "description": "SIMD 加速的 JPEG 编解码库（xmake-repo 的 libjpeg-turbo 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "headers": ["jpeglib.h"],
-      "xmake": { "package": "libjpeg-turbo" },
       "conan": { "reference": "libjpeg-turbo/3.2.0" }
     },
     {
@@ -126,16 +125,9 @@
       "name": "opencv",
       "title": "OpenCV",
       "category": "image",
-      "description": "计算机视觉与图像处理库",
+      "description": "计算机视觉与图像处理库（xmake-repo 的 opencv 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "experimental": true,
       "headers": ["opencv2/core.hpp"],
-      "xmake": {
-        "package": "opencv",
-        "configs": {
-          "shared": false,
-          "with_ffmpeg": false
-        }
-      },
       "conan": { "reference": "opencv/4.14.0" }
     },
     {
@@ -349,7 +341,7 @@
       "description": "Google C++ 单元测试框架",
       "headers": ["gtest/gtest.h"],
       "xmake": { "package": "gtest" },
-      "conan": { "reference": "gtest/cci.20210126" }
+      "conan": { "reference": "gtest/1.17.0" }
     },
     {
       "name": "catch2",
@@ -422,9 +414,8 @@
       "name": "libarchive",
       "title": "libarchive",
       "category": "archive",
-      "description": "多格式归档与压缩读写库",
+      "description": "多格式归档与压缩读写库（xmake-repo 的 libarchive 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "headers": ["archive.h"],
-      "xmake": { "package": "libarchive" },
       "conan": { "reference": "libarchive/3.8.7" }
     },
     {
@@ -460,7 +451,7 @@
       "title": "Opus",
       "category": "audio",
       "description": "低延迟音频编解码库",
-      "headers": ["opus.h"],
+      "headers": ["opus/opus.h"],
       "xmake": { "package": "libopus" },
       "conan": { "reference": "opus/1.6.1" }
     },
@@ -516,10 +507,9 @@
       "name": "libvpx",
       "title": "libvpx",
       "category": "multimedia",
-      "description": "VP8/VP9 视频编解码库",
+      "description": "VP8/VP9 视频编解码库（xmake-repo 的 libvpx 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "experimental": true,
       "headers": ["vpx/vpx_decoder.h"],
-      "xmake": { "package": "libvpx" },
       "conan": { "reference": "libvpx/1.16.0" }
     },
     {
