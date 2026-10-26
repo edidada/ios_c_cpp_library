@@ -54,8 +54,13 @@ Opus、FLAC、SDL3、protobuf）已分别配置。标记为 `"experimental": tru
 
 - `openssl` 的 xmake 侧使用 `openssl3` 包。xmake-repo 里的 `openssl` 包停留在 1.1.1（已 EOL），
   默认解析会得到 1.1.1-w，因此这里显式改用 `openssl3 3.6.5`。
-- `libssh2`、`opencv`、`libvpx`、`libjpeg-turbo`、`libarchive` 只提供 Conan 2 后端：
+- `libssh2`、`opencv`、`libvpx`、`libjpeg-turbo`、`libarchive`、`libxml2` 只提供 Conan 2 后端：
   xmake-repo 中这些包不支持 `iphoneos` 平台，在 iOS 上会直接报 unsupported package。
+- `harfbuzz`、`openh264` 只提供 Conan 2 后端：xmake-repo 的 meson 构建链会源码编译 Python，
+  在 macOS runner 上会安装失败或超时。
+- Conan 侧的 iOS 兼容选项：`libxml2` 关闭 `include_utils`（不安装 `xmllint` / `xmlcatalog`，
+  避免 CMake `MACOSX_BUNDLE` 安装错误）；`harfbuzz` 关闭 `with_glib`（避免引入 glib 依赖）；
+  `ffmpeg` 为 `libx264` 关闭 `with_asm`（Intel 模拟器交叉编译时 x264 的 NEON / 汇编探测会失败）。
 - `recipes/libvpx/` 维护了一份补丁版 Conan recipe。Conan 2.29+ 在 Apple 平台上会把
   `-arch`、`-mios-simulator-version-min` 写入 `ASFLAGS`，而 libvpx 会把 `ASFLAGS` 原样传给
   yasm，导致 x86_64 模拟器切片报 `yasm: FATAL: unrecognized architecture`。补丁在 Apple

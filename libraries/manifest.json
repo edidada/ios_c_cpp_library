@@ -146,10 +146,12 @@
       "name": "harfbuzz",
       "title": "HarfBuzz",
       "category": "font",
-      "description": "OpenType 文本整形引擎",
+      "description": "OpenType 文本整形引擎（xmake-repo 的 meson 构建链需源码编译 Python，故仅提供 Conan 2 后端）",
       "headers": ["hb.h"],
-      "xmake": { "package": "harfbuzz" },
-      "conan": { "reference": "harfbuzz/12.3.0" }
+      "conan": {
+        "reference": "harfbuzz/12.3.0",
+        "options": ["harfbuzz/*:with_glib=False"]
+      }
     },
     {
       "name": "openssl",
@@ -389,10 +391,12 @@
       "name": "libxml2",
       "title": "libxml2",
       "category": "xml",
-      "description": "XML 解析与操作库",
+      "description": "XML 解析与操作库（xmake-repo 不支持 iOS，故仅提供 Conan 2 后端）",
       "headers": ["libxml/parser.h"],
-      "xmake": { "package": "libxml2" },
-      "conan": { "reference": "libxml2/2.15.4" }
+      "conan": {
+        "reference": "libxml2/2.15.4",
+        "options": ["libxml2/*:include_utils=False"]
+      }
     },
     {
       "name": "expat",
@@ -500,10 +504,9 @@
       "name": "openh264",
       "title": "OpenH264",
       "category": "multimedia",
-      "description": "Cisco H.264 编解码库",
+      "description": "Cisco H.264 编解码库（xmake-repo 的 meson 构建链需源码编译 Python，故仅提供 Conan 2 后端）",
       "experimental": true,
       "headers": ["wels/codec_api.h"],
-      "xmake": { "package": "openh264" },
       "conan": { "reference": "openh264/2.6.0" }
     },
     {
@@ -530,7 +533,10 @@
           "ffplay": false
         }
       },
-      "conan": { "reference": "ffmpeg/9.0.1" }
+      "conan": {
+        "reference": "ffmpeg/9.0.1",
+        "options": ["libx264/*:with_asm=False"]
+      }
     }
   ]
 }
