@@ -304,9 +304,12 @@ build_with_conan() {
         IFS=';' read -r -a options <<<"$conan_options"
         for opt in "${options[@]}"; do
             [ -n "$opt" ] || continue
+            # Conan 2.3x 起只接受「包模式」形式的选项（pkg/*:opt）。
+            # 兼容清单里的三种写法：opt、pkg:opt、pkg/*:opt。
             case "$opt" in
-                *:*) ;;
-                *) opt="$pkg_name:$opt" ;;
+                */*:*) ;;                                   # 已是 pkg/*:opt
+                *:*) opt="${opt%%:*}"'/*:'"${opt#*:}" ;;    # pkg:opt -> pkg/*:opt
+                *) opt="$pkg_name/*:$opt" ;;                # opt     -> pkg/*:opt
             esac
             option_args+=("-o" "$opt")
         done

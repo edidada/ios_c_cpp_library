@@ -162,10 +162,10 @@
       "category": "crypto",
       "description": "TLS/SSL 与密码学工具库",
       "headers": ["openssl/ssl.h"],
-      "xmake": { "package": "openssl" },
+      "xmake": { "package": "openssl3", "version": "3.6.5" },
       "conan": {
         "reference": "openssl/4.0.3",
-        "options": ["openssl:shared=False"]
+        "options": ["openssl/*:shared=False"]
       }
     },
     {
@@ -208,9 +208,8 @@
       "name": "libssh2",
       "title": "libssh2",
       "category": "network",
-      "description": "SSH2 协议客户端库",
+      "description": "SSH2 协议客户端库（xmake-repo 的 libssh2 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "headers": ["libssh2.h"],
-      "xmake": { "package": "libssh2" },
       "conan": { "reference": "libssh2/1.11.1" }
     },
     {

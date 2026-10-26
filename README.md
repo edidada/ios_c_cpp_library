@@ -50,6 +50,13 @@ Opus、FLAC、SDL3、protobuf）已分别配置。标记为 `"experimental": tru
 依赖多或 iOS 适配仍不稳定的库，CI 允许它们失败而不影响整个工作流。
 `--libs` 除库名外也接受 `presets` 中的集合名，例如 `core`，也可以与库名混用：`core,ffmpeg`。
 
+清单允许某个库只声明一种后端，缺少的后端会在构建时自动跳过：
+
+- `openssl` 的 xmake 侧使用 `openssl3` 包。xmake-repo 里的 `openssl` 包停留在 1.1.1（已 EOL），
+  默认解析会得到 1.1.1-w，因此这里显式改用 `openssl3 3.6.5`。
+- `libssh2` 只提供 Conan 2 后端。xmake-repo 的 `libssh2` 包不支持 `iphoneos` 平台，
+  在 iOS 上会直接报 unsupported package。
+
 与 Android 清单相比，本清单移除了 Android 专属的 `oboe`，并为 iOS 增加了 `minIosVersion`、
 `slices` 与 xcframework 合并流程。
 
@@ -205,7 +212,7 @@ bash scripts/ios/xcframework.sh --libs all --backends conan
   },
   "conan": {
     "reference": "mylib/1.2.3",
-    "options": ["mylib:shared=False"]
+    "options": ["mylib/*:shared=False"]
   }
 }
 ```
@@ -213,8 +220,12 @@ bash scripts/ios/xcframework.sh --libs all --backends conan
 字段说明见 `libraries/manifest.schema.json`。
 
 - `name` 必须唯一，用作目录名和 CI 参数。
-- `xmake.package` 是 [xmake-repo](https://github.com/xmake-io/xmake-repo) 中的包名。
+- `xmake` 与 `conan` 至少提供一个；只提供一个时，构建脚本会自动跳过缺失的后端。
+- `xmake.package` 是 [xmake-repo](https://github.com/xmake-io/xmake-repo) 中的包名；
+  `xmake.version` 建议显式固定，避免默认解析到意外版本。
 - `conan.reference` 是 ConanCenter 中的完整引用，必须带版本。
+- `conan.options` 推荐使用 Conan 2 的包模式写法 `pkg/*:opt=value`；`pkg:opt=value` 和
+  `opt=value` 也会被自动规范化。
 - `headers` 用于编译探针，校验头文件是否可用；不写则只验证包能编译。
 - `defines` 会以 `#define` 形式加入探针，例如 PCRE2 需要 `PCRE2_CODE_UNIT_WIDTH=8`。
 - `minIosVersion` 不写时使用 `defaults.iosMinVersion`（当前 13.0）。
