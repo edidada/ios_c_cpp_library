@@ -90,6 +90,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: 校验单库入口与清单同步
+        run: python3 scripts/lib/generate-library-scripts.py --check
+
       - name: 展开构建矩阵
         id: matrix
         run: |

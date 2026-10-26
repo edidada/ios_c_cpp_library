@@ -64,22 +64,42 @@ Opus、FLAC、SDL3、protobuf）已分别配置。标记为 `"experimental": tru
 与 Android 清单相比，本清单移除了 Android 专属的 `oboe`，并为 iOS 增加了 `minIosVersion`、
 `slices` 与 xcframework 合并流程。
 
-## 平台入口脚本
+## 平台与单库入口脚本
 
-iOS 目标固定，宿主只能是 macOS：
+iOS 产物只能在 macOS + Xcode 上生成，因此仓库只提供 macOS 宿主入口，不提供 Linux/Windows
+占位入口。所有入口最终都调用 `scripts/build.sh`：
+
+| 入口 | 说明 |
+| --- | --- |
+| `scripts/mac/build.sh` | 批量入口，默认编译 `presets.core`，支持 `--libs core/all/单库/逗号列表` |
+| `scripts/mac/<library>.sh` | 单库入口，每个库一个文件；库名固定，其余参数原样透传 |
+
+`scripts/mac/` 下的单库脚本由 `scripts/lib/generate-library-scripts.py` 根据
+`libraries/manifest.json` 生成。清单增删库后重新生成并校验：
 
 ```bash
-bash scripts/mac/build.sh
+python3 scripts/lib/generate-library-scripts.py          # 生成/更新
+python3 scripts/lib/generate-library-scripts.py --check  # 只校验是否与清单同步
 ```
 
-默认编译 `presets.core`，也可以指定库、切片和后端：
+每个库都有独立文件，例如：
 
 ```bash
+bash scripts/mac/libevent.sh
+bash scripts/mac/zlib.sh --backends conan
+bash scripts/mac/openssl.sh --slices iphoneos-arm64
+bash scripts/mac/ffmpeg.sh --skip-setup   # 已手动执行过 setup
+```
+
+批量构建仍使用平台入口：
+
+```bash
+bash scripts/mac/build.sh                    # 默认 presets.core
 bash scripts/mac/build.sh --libs all
 bash scripts/mac/build.sh --libs core --slices iphoneos-arm64
-bash scripts/mac/build.sh --libs libevent --skip-setup   # 已手动执行过 setup
-bash scripts/mac/build.sh --libs zlib --backends conan
 ```
+
+> 单库脚本会在参数末尾追加 `--libs <library>`，因此脚本名始终优先；不要用它构建其他库。
 
 ## 独立的 xmake / Conan 2 入口
 
@@ -236,11 +256,13 @@ bash scripts/ios/xcframework.sh --libs all --backends conan
 - `minIosVersion` 不写时使用 `defaults.iosMinVersion`（当前 13.0）。
 - `experimental: true` 时 CI 对该库使用 `continue-on-error`。
 
-修改后先校验：
+修改后重新生成单库入口并校验：
 
 ```bash
+python3 scripts/lib/generate-library-scripts.py
+python3 scripts/lib/generate-library-scripts.py --check
 bash scripts/list-libraries.sh --validate
-bash scripts/mac/build.sh --libs mylib --slices iphoneos-arm64
+bash scripts/mac/mylib.sh --slices iphoneos-arm64
 ```
 
 ## 构建方式说明
@@ -265,11 +287,13 @@ libraries/manifest.schema.json                 清单 JSON Schema
 scripts/setup.sh                               安装 xmake / Conan 2，生成 iOS Conan profiles
 scripts/list-libraries.sh                      查看支持的 iOS 库列表
 scripts/build.sh                               通用编译入口
-scripts/mac/build.sh                           macOS 宿主入口
+scripts/mac/build.sh                           macOS 批量入口
+scripts/mac/<library>.sh                       每库一个单库入口（由清单生成）
 scripts/ios/xmake/build.sh                     xmake iOS 专用入口
 scripts/ios/conan2/build.sh                    Conan 2 iOS 专用入口
 scripts/ios/xcframework.sh                     合并设备/模拟器切片为 xcframework
 scripts/lib/common.sh                          Xcode / SDK / 切片 / 日志等公共函数
 scripts/lib/platform.sh                       平台入口公共实现
 scripts/lib/manifest.py                       清单解析、校验、preset / matrix / TSV 输出
+scripts/lib/generate-library-scripts.py       根据清单生成 scripts/mac/<library>.sh
 ```

@@ -128,7 +128,10 @@
       "description": "计算机视觉与图像处理库（xmake-repo 的 opencv 包不支持 iphoneos，故仅提供 Conan 2 后端）",
       "experimental": true,
       "headers": ["opencv2/core.hpp"],
-      "conan": { "reference": "opencv/4.14.0" }
+      "conan": {
+        "reference": "opencv/4.14.0",
+        "options": ["openjph/*:with_executables=False"]
+      }
     },
     {
       "name": "freetype",
