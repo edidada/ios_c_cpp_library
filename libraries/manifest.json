@@ -395,7 +395,7 @@
       "headers": ["libxml/parser.h"],
       "conan": {
         "reference": "libxml2/2.15.4",
-        "options": ["libxml2/*:include_utils=False"]
+        "options": ["libxml2/*:programs=False"]
       }
     },
     {
@@ -535,7 +535,7 @@
       },
       "conan": {
         "reference": "ffmpeg/9.0.1",
-        "options": ["libx264/*:with_asm=False"]
+        "options": ["ffmpeg/*:with_libx264=False"]
       }
     }
   ]

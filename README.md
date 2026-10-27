@@ -58,9 +58,10 @@ Opus、FLAC、SDL3、protobuf）已分别配置。标记为 `"experimental": tru
   xmake-repo 中这些包不支持 `iphoneos` 平台，在 iOS 上会直接报 unsupported package。
 - `harfbuzz`、`openh264` 只提供 Conan 2 后端：xmake-repo 的 meson 构建链会源码编译 Python，
   在 macOS runner 上会安装失败或超时。
-- Conan 侧的 iOS 兼容选项：`libxml2` 关闭 `include_utils`（不安装 `xmllint` / `xmlcatalog`，
+- Conan 侧的 iOS 兼容选项：`libxml2` 关闭 `programs`（不安装 `xmllint` / `xmlcatalog`，
   避免 CMake `MACOSX_BUNDLE` 安装错误）；`harfbuzz` 关闭 `with_glib`（避免引入 glib 依赖）；
-  `ffmpeg` 为 `libx264` 关闭 `with_asm`（Intel 模拟器交叉编译时 x264 的 NEON / 汇编探测会失败）。
+  `ffmpeg` 关闭 `with_libx264`（libx264 的 configure 在 Intel 模拟器交叉编译时会误判为
+  arm64 host，导致 C 源码按 arm64 编译而失败）。
 - `recipes/libvpx/` 维护了一份补丁版 Conan recipe。Conan 2.29+ 在 Apple 平台上会把
   `-arch`、`-mios-simulator-version-min` 写入 `ASFLAGS`，而 libvpx 会把 `ASFLAGS` 原样传给
   yasm，导致 x86_64 模拟器切片报 `yasm: FATAL: unrecognized architecture`。补丁在 Apple
